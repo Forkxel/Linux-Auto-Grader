@@ -1,0 +1,16 @@
+[Unit]
+Description=Reverse SSH tunnel to VPS (RPi -> VPS)
+Wants=network-online.target
+After=network-online.target ssh.service
+
+[Service]
+User=vivi
+Environment="AUTOSSH_GATETIME=0"
+ExecStart=/usr/bin/autossh -M 0 -N \
+  -o "ServerAliveInterval 60" -o "ServerAliveCountMax 3" \
+  -R 0.0.0.0:2222:localhost:2222 rpi-vps
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

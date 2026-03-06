@@ -1,0 +1,13 @@
+[Unit]
+Description=Linux Lab Grader
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStartPre=/opt/lab-grader/seed.sh
+ExecStart=/opt/lab-grader/grader.sh
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
