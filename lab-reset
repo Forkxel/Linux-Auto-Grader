@@ -3,42 +3,45 @@ set -e
 
 echo "Resetuji test..."
 
-# Delete testuser
+# Smaž testuser
 if id -u testuser >/dev/null 2>&1; then
-    sudo userdel -r testuser || true
+    userdel -r testuser || true
 fi
 
-# Delete skupinu project
+# Smaž skupinu project
 if getent group project >/dev/null 2>&1; then
-    sudo groupdel project || true
+    groupdel project || true
 fi
 
-# Delete pracovní složky
-sudo rm -rf /home/vivi/lab
-sudo rm -rf /home/vivi/extracted_lab
-sudo rm -rf /home/vivi/found
-sudo rm -rf /home/vivi/maze
-sudo rm -f /home/vivi/lab-archive.tar.xz
-sudo rm -f /home/vivi/grep_result.txt
-sudo rm -f /var/lib/lab-grader/t06_started /var/lib/lab-grader/t06_done
-sudo rm -f /home/vivi/lab/sleep.pid
-
-# Delete state
-sudo rm -f /var/lib/lab-grader/state
-sudo rm -f /var/lib/lab-grader/seeded
+# Smaž pracovní složky
+rm -rf /home/vivi/lab
+rm -rf /home/vivi/extracted_lab
+rm -rf /home/vivi/found
+rm -rf /home/vivi/maze
+rm -f /home/vivi/lab-archive.tar.xz
+rm -f /home/vivi/grep_result.txt
+rm -f /var/lib/lab-grader/t06_started /var/lib/lab-grader/t06_done
+rm -f /var/lib/lab-grader/t12_shadow_before
+rm -f /var/lib/lab-grader/state
+rm -f /var/lib/lab-grader/seeded
 
 # Zabij případný sleep proces
-sudo pkill -f "sleep 9999" || true
+pkill -f "sleep 9999" || true
+
+echo "Odinstalovávám mc..."
+export DEBIAN_FRONTEND=noninteractive
+apt-get purge -y mc || true
+apt-get autoremove -y || true
 
 echo "Spouštím nový seed..."
-sudo /opt/lab-grader/seed.sh
+/opt/lab-grader/seed.sh
 
 echo "Restartuji grader..."
-sudo systemctl restart lab-grader
+systemctl restart lab-grader
+
+echo "Restartuji tunel..."
+systemctl restart rpi-vps-tunnel || true
 
 echo "Hotovo. Restartuji Raspberry Pi za 3 sekundy..."
 sleep 3
-
-sudo systemctl restart rpi-vps-tunnel || true
-
-sudo reboot
+reboot

@@ -3,17 +3,17 @@ set -euo pipefail
 
 SEED_FLAG="/var/lib/lab-grader/seeded"
 
-# run only once
+# Spustit jen jednou
 if [ -f "$SEED_FLAG" ]; then
   exit 0
 fi
 
-# Uživatelský účet, který se má mazat (aby T02 nebyl hotový hned)
+# 1) Uživatelský účet, který se má mazat (aby T02 nebyl hotový hned)
 if ! id -u olduser >/dev/null 2>&1; then
   useradd -m olduser
 fi
 
-# Připrav pracovní složku vivi
+# 2) Připrav pracovní složku vivi
 mkdir -p /home/vivi/lab
 chown -R vivi:vivi /home/vivi/lab
 
@@ -21,22 +21,25 @@ chown -R vivi:vivi /home/vivi/lab
 touch /home/vivi/lab/temp.txt
 chown vivi:vivi /home/vivi/lab/temp.txt
 
-# Proces, který musí student najít a vypnout (T06)
+# 3) Proces, který musí student najít a vypnout (T06)
+# 3) Proces, který musí student najít a vypnout (T06)
+
+# Sleep spustíme vždy při resetu (protože reset smaže SEED_FLAG)
 if [ -f "$SEED_FLAG" ]; then
   exit 0
 fi
 
-# vytvoření prostředí
+# vytvoření prostředí...
 
 nohup sleep 9999 >/dev/null 2>&1 &
 
 touch "$SEED_FLAG"
-# Maze se skrytým souborem + tajným řetězcem (T09, T10)
+# 4) Maze se skrytým souborem + tajným řetězcem (T09, T10)
 mkdir -p /home/vivi/maze/a/b/c/d
 echo "Tady je tajemství: SECRET123" > /home/vivi/maze/a/b/c/d/hidden_note.txt
 chown -R vivi:vivi /home/vivi/maze
 
-# Cíl pro kopii
+# 5) Cíl pro kopii
 mkdir -p /home/vivi/found
 chown -R vivi:vivi /home/vivi/found
 

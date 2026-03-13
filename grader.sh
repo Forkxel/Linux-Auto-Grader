@@ -119,12 +119,37 @@ check_T11() {
   [ "$(stat -c %G /home/vivi/lab 2>/dev/null)" = "project" ] &&
   [ "$(stat -c %a /home/vivi/lab 2>/dev/null)" = "770" ]
 }
+
+check_T12() {
+  id -u testuser >/dev/null 2>&1 || return 1
+  [ -f /var/lib/lab-grader/t12_shadow_before ] || return 1
+
+  local before now
+  before="$(cat /var/lib/lab-grader/t12_shadow_before 2>/dev/null)"
+  now="$(getent shadow testuser | cut -d: -f3)"
+
+  [ -n "$before" ] && [ -n "$now" ] && [ "$before" != "$now" ]
+}
+
+check_T13() {
+  command -v mc >/dev/null 2>&1
+}
+
+check_T15() {
+  local f="/home/vivi/lab/date.txt"
+  [ -f "$f" ] || return 1
+  grep -Eq '^[0-9]{2}\.[0-9]{2}\.[0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2}$' "$f"
+}
+
 # ---- Loop ----
 init_state
 
 while true; do
   if pgrep -f "sleep 9999" >/dev/null 2>&1; then
       touch /var/lib/lab-grader/t06_started
+  fi
+  if id -u testuser >/dev/null 2>&1 && [ ! -f /var/lib/lab-grader/t12_shadow_before ]; then
+      getent shadow testuser | cut -d: -f3 > /var/lib/lab-grader/t12_shadow_before
   fi
   while IFS='|' read -r id desc; do
     [[ -z "${id:-}" || "${id:0:1}" == "#" ]] && continue
